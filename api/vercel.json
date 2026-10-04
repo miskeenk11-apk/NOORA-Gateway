@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/v1/chat",
-      "destination": "/api/chat.js"
+      "source": "/v1/chat/:path*",
+      "destination": "/api/chat"
     }
   ]
 }
