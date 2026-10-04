@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js"
   },
-  "dependencies": {
+  "dependencies": { 
+    "@google/genai": "^1.31.0",
     "express": "^5.1.0",
     "openai": "^6.8.1"
   }
