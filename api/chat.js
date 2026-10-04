@@ -1,12 +1,14 @@
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed",
+    });
   }
 
   try {
@@ -24,17 +26,28 @@ export default async function handler(req, res) {
       });
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-5.6-sol",
-      input: messages,
-      max_output_tokens: 1000,
+    const contents = messages.map((message) => ({
+      role: message.role === "assistant" ? "model" : "user",
+      parts: [
+        {
+          text: String(message.content || ""),
+        },
+      ],
+    }));
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.8-flash",
+      contents,
     });
 
     return res.status(200).json({
-      reply: response.output_text,
+      reply: response.text,
     });
   } catch (error) {
-    console.error("NOORA Gateway error:", error?.message || "Unknown error");
+    console.error(
+      "NOORA Gateway error:",
+      error?.message || "Unknown error"
+    );
 
     return res.status(500).json({
       error: "NOORA Gateway could not process the request",
