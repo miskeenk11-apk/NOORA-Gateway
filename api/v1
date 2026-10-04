@@ -1,0 +1,48 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      error: "Method not allowed",
+    });
+  }
+
+  try {
+    const { messages } = req.body || {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({
+        error: "messages must be a non-empty array",
+      });
+    }
+
+    if (messages.length > 20) {
+      return res.status(400).json({
+        error: "Too many messages",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.6-sol",
+      input: messages,
+      max_output_tokens: 1000,
+    });
+
+    return res.status(200).json({
+      reply: response.output_text,
+    });
+  } catch (error) {
+    console.error(
+      "NOORA Gateway error:",
+      error?.message || "Unknown error"
+    );
+
+    return res.status(500).json({
+      error: "NOORA Gateway could not process the request",
+    });
+  }
+}
